@@ -3,5 +3,8 @@
   "typescript.tsdk": "node_modules/typescript/lib",
 
   // Prettier をデフォルトフォーマッターにする
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "editor.acceptSuggestionOnEnter": "off",
+
 }

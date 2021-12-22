@@ -5,6 +5,7 @@
     "esbenp.prettier-vscode",
 
     // styled-components のシンタックスハイライトとintellisenseを有効にする
-    "diegolincoln.vscode-styled-components"
+    "diegolincoln.vscode-styled-components",
+
   ]
 }
