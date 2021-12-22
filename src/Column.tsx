@@ -3,26 +3,34 @@ import styled from 'styled-components'
 import * as color from './color'
 import { Card } from './Card'
 import { PlusIcon } from './icon'
-import { InputForm, InputForm as _InputForm } from './InputForm'
+import { InputForm as _InputForm } from './InputForm'
 
-export const Column =({
+export const Column = ({
   title,
-  cards,
+  filterValue: rawFilterValue,
+  cards: rawCards,
 }: {
   title?: string
+  filterValue?: string
   cards: {
     id: string
     text?: string
   }[]
 }) => {
-  const totalCount = cards.length
+  const filterValue = rawFilterValue?.trim()
+  const keywords = filterValue?.toLowerCase().split(/\s+/g) ?? []
+  const cards = rawCards.filter(({ text }) => {
+    return keywords?.every(w => text?.toLowerCase().includes(w))
+  })
 
-  const [text, setText] = useState('');
+  const totalCount = rawCards.length
 
-  const [inputMode, setInputMode] = useState(false);
-  const toggleInput = () => setInputMode(v => !v);
-  const confirmInput = () => setText('');
-  const cancelInput = () => setInputMode(false);
+  const [text, setText] = useState('')
+
+  const [inputMode, setInputMode] = useState(false)
+  const toggleInput = () => setInputMode(v => !v)
+  const confirmInput = () => setText('')
+  const cancelInput = () => setInputMode(false)
 
   return (
     <Containr>
@@ -41,6 +49,8 @@ export const Column =({
           onCancel={cancelInput}
         />
       )}
+
+      {filterValue && <ResultCount>{cards.length} results</ResultCount>}
 
       <VerticalScroll>
         {cards.map(({ id, text }) => (
@@ -98,6 +108,16 @@ const AddButton = styled.button.attrs({
   ::hover {
     color: ${color.Blue};
   }
+`
+
+const InputForm = styled(_InputForm)`
+  padding: 8px;
+`
+
+const ResultCount = styled.div`
+  color: ${color.Black};
+  font-size: 12px;
+  text-align: center;
 `
 
 const VerticalScroll = styled.div`
