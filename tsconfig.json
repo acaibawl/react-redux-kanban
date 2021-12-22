@@ -1,4 +1,3 @@
-
 {
   "compilerOptions": {
     // Target latest browsers
@@ -20,6 +19,10 @@
     // Only for type checks.
     "incremental": true,
     "outDir": "./.ts-cache/",
+
+     // cf. https://github.com/DefinitelyTyped/DefinitelyTyped/issues/33311
+     // cf. https://stackoverflow.com/a/55540896
+     "skipLibCheck": true,
 
     // Useful type checks.
     "strictNullChecks": true
