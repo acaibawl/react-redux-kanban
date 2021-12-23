@@ -53,18 +53,23 @@
     {
       "id": "DeISAtjASxeX",
       "text": "aaa"
+    },
+    {
+      "id": "lyas2WCvtZ1X",
+      "text": "追加テスト"
     }
   ],
   "cardsOrder": {
     "cXrtw5n8-FsB": "3NRSLMq49xvT",
     "w7DTqK1QQKTI": "rh022hj9zG58",
-    "bfrqTfEydU38": "bfrqTfEydU38",
+    "bfrqTfEydU38": "lyas2WCvtZ1X",
     "dfwMbxZS0EmM": "7lR4Vd3EYixP",
     "7lR4Vd3EYixP": "dfwMbxZS0EmM",
     "TsXP5w9qLeM-": "-wkumDeruhSx",
     "rh022hj9zG58": "ulnuLLt5TN93",
     "3NRSLMq49xvT": "cXrtw5n8-FsB",
     "ulnuLLt5TN93": "TsXP5w9qLeM-",
-    "-wkumDeruhSx": "w7DTqK1QQKTI"
+    "-wkumDeruhSx": "w7DTqK1QQKTI",
+    "lyas2WCvtZ1X": "bfrqTfEydU38"
   }
 }

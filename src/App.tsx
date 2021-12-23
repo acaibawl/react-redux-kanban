@@ -97,17 +97,23 @@ export const App = () => {
     if (!column) return
     const text = column.text
     const cardID = randomID()
+    const patch = reorderPatch(cardsOrder, cardID, cardsOrder[columnID])
 
     setData(
       produce((draft: State) => {
         const column = draft.columns?.find(c => c.id === columnID)
-        if (!column) return
+        if (!column?.cards) return
 
-        column.cards?.unshift({
+        column.cards.unshift({
           id: cardID,
           text: column.text,
         })
         column.text = ''
+
+        draft.cardsOrder = {
+          ...draft.cardsOrder,
+          ...patch,
+        }
       }),
     )
 
@@ -115,6 +121,7 @@ export const App = () => {
       id: cardID,
       text,
     })
+    api('PATCH /v1/cardsOrder', patch)
   }
 
   const [deletingCardID, setDeletingCardID] = useState<string | undefined>(
@@ -148,20 +155,20 @@ export const App = () => {
           {!columns ? (
             <Loading />
           ) : (
-          columns.map(({ id: columnID, title, cards, text }) => (
-            <Column
-              key={columnID}
-              title={title}
-              filterValue={filterValue}
-              cards={cards}
-              onCardDragStart={cardID => setDraggingCardID(cardID)}
-              onCardDrop={entered => dropCardTo(entered ?? columnID)}
-              onCardDeleteClick={cardID => setDeletingCardID(cardID)}
-              text={text}
-              onTextChange={value => setText(columnID, value)}
-              onTextConfirm={() => addCard(columnID)}
-            />
-          ))
+            columns.map(({ id: columnID, title, cards, text }) => (
+              <Column
+                key={columnID}
+                title={title}
+                filterValue={filterValue}
+                cards={cards}
+                onCardDragStart={cardID => setDraggingCardID(cardID)}
+                onCardDrop={entered => dropCardTo(entered ?? columnID)}
+                onCardDeleteClick={cardID => setDeletingCardID(cardID)}
+                text={text}
+                onTextChange={value => setText(columnID, value)}
+                onTextConfirm={() => addCard(columnID)}
+              />
+            ))
           )}
         </HorizontalScroll>
       </MainArea>
