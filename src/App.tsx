@@ -3,6 +3,8 @@ import styled from 'styled-components'
 import produce from 'immer'
 import { Header as _Header } from './Header'
 import { Column } from './Column'
+import { DeleteDialog } from './DeleteDialog'
+import { Overlay as _Overlay } from './Overlay'
 
 export const App = () => {
   const [filterValue, setFilterValue] = useState('')
@@ -54,25 +56,46 @@ export const App = () => {
         const card = columns
           .flatMap(col => col.cards)
           .find(c => c.id === fromID)
-        if(!card) return
+        if (!card) return
 
         const fromColumn = columns.find(col =>
-          col.cards.some(c => c.id === fromID)
+          col.cards.some(c => c.id === fromID),
         )
-        if(!fromColumn) return
+        if (!fromColumn) return
 
         fromColumn.cards = fromColumn.cards.filter(c => c.id !== fromID)
 
         const toColumn = columns.find(
-          col => col.id === toID || col.cards.some(c => c.id === toID)
+          col => col.id === toID || col.cards.some(c => c.id === toID),
         )
-        if(!toColumn) return
+        if (!toColumn) return
 
         let index = toColumn.cards.findIndex(c => c.id === toID)
-        if(index < 0) {
+        if (index < 0) {
           index = toColumn.cards.length
         }
         toColumn.cards.splice(index, 0, card)
+      }),
+    )
+  }
+
+  const [deletingCardID, setDeletingCardID] = useState<string | undefined>(
+    undefined,
+  )
+
+  const deleteCard = () => {
+    const cardID = deletingCardID
+    if (!cardID) return
+
+    setDeletingCardID(undefined)
+
+    type Columns = typeof columns
+    setColumns(
+      produce((columns: Columns) => {
+        const column = columns.find(col => col.cards.some(c => c.id === cardID))
+        if (!column) return
+
+        column.cards = column.cards.filter(c => c.id !== cardID)
       })
     )
   }
@@ -91,10 +114,20 @@ export const App = () => {
               cards={cards}
               onCardDragStart={cardID => setDraggingCardID(cardID)}
               onCardDrop={entered => dropCardTo(entered ?? columnID)}
+              onCardDeleteClick={cardID => setDeletingCardID(cardID)}
             />
           ))}
         </HorizontalScroll>
       </MainArea>
+
+      {deletingCardID && (
+        <Overlay onClick={() => setDeletingCardID(undefined)}>
+          <DeleteDialog
+            onConfirm={deleteCard}
+            onCancel={() => setDeletingCardID(undefined)}
+          />
+        </Overlay>
+      )}
     </Container>
   )
 }
@@ -131,4 +164,10 @@ const HorizontalScroll = styled.div`
     flex: 0 0 16px;
     content: '';
   }
+`
+
+const Overlay = styled(_Overlay)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `
