@@ -12,6 +12,10 @@ export const Column = ({
   onCardDragStart,
   onCardDrop,
   onCardDeleteClick,
+  text,
+  onTextChange,
+  onTextConfirm,
+  onTextCancel,
 }: {
   title?: string
   filterValue?: string
@@ -22,6 +26,10 @@ export const Column = ({
   onCardDragStart?(id: string): void
   onCardDrop?(entered: string | null): void
   onCardDeleteClick?(id: string): void
+  text?: string
+  onTextChange?(value: string): void
+  onTextConfirm?(): void
+  onTextCancel?(): void
 }) => {
   const filterValue = rawFilterValue?.trim()
   const keywords = filterValue?.toLowerCase().split(/\s+/g) ?? []
@@ -31,12 +39,15 @@ export const Column = ({
 
   const totalCount = rawCards.length
 
-  const [text, setText] = useState('')
-
   const [inputMode, setInputMode] = useState(false)
   const toggleInput = () => setInputMode(v => !v)
-  const confirmInput = () => setText('')
-  const cancelInput = () => setInputMode(false)
+  const confirmInput = () => {
+    onTextConfirm?.()
+  }
+  const cancelInput = () => {
+    setInputMode(false)
+    onTextCancel?.()
+  }
 
   const [draggingCardID, setDraggingCardID] = useState<string | undefined>(
     undefined,
@@ -59,7 +70,7 @@ export const Column = ({
       {inputMode && (
         <InputForm
           value={text}
-          onChange={setText}
+          onChange={onTextChange}
           onConfirm={confirmInput}
           onCancel={cancelInput}
         />
