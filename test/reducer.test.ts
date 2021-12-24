@@ -109,6 +109,8 @@ test('App.SetCards', async () => {
 
 test('Dialog.ConfirmDelete', async () => {
   const prev = produce(initialState, draft => {
+    draft.deletingCardID = '3' as CardID
+
     draft.cardsOrder = {
       A: '1' as CardID,
       '1': '2' as CardID,
@@ -212,6 +214,65 @@ test('Card.Drop',async () => {
 
     const [card] = draft.columns![0].cards!.splice(0, 1)
     draft.columns![1].cards!.unshift(card)
+  })
+
+  assert.deepStrictEqual(next, expected)
+})
+
+test('InputForm.ConfirmInput', async () => {
+  const prev = produce(initialState, draft => {
+    draft.cardsOrder = {
+      A: '1' as CardID,
+      '1': '2' as CardID,
+      '2': 'A' as CardID,
+      B: '3' as CardID,
+      '3': 'B' as CardID,
+    }
+    draft.columns = [
+      {
+        id: 'A' as ColumnID,
+        text: 'hello',
+        cards: [
+          {
+            id: '1' as CardID,
+          },
+          {
+            id: '2' as CardID,
+          },
+        ],
+      },
+      {
+        id: 'B' as ColumnID,
+        cards: [
+          {
+            id: '3' as CardID,
+          },
+        ],
+      },
+    ]
+  })
+
+  const next = reducer(prev, {
+    type: 'InputForm.ConfirmInput',
+    payload: {
+      columnID: 'A' as ColumnID,
+      cardID: 'new' as CardID,
+    },
+  })
+
+  const expected = produce(prev, draft => {
+    draft.cardsOrder = {
+      ...draft.cardsOrder,
+      A: 'new' as CardID,
+      new: '1' as CardID,
+    }
+
+    const column = draft.columns![0]!
+    column.text = ''
+    column.cards!.unshift({
+      id: 'new' as CardID,
+      text: 'hello',
+    })
   })
 
   assert.deepStrictEqual(next, expected)

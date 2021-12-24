@@ -11,7 +11,7 @@ export type State = {
     text?: string
     cards?: {
       id: CardID
-      test?: string
+      text?: string
     }[]
   }[]
   cardsOrder: Record<string, CardID | ColumnID | null>
@@ -74,6 +74,20 @@ export type Action =
       type: 'Card.Drop'
       payload: {
         toID: CardID | ColumnID
+      }
+    }
+  | {
+      type: 'InputForm.SetText'
+      payload: {
+        columnID: ColumnID
+        value: string
+      }
+    }
+  | {
+      type: 'InputForm.ConfirmInput'
+      payload: {
+        columnID: ColumnID
+        cardID: CardID
       }
     }
 
@@ -146,12 +160,12 @@ export const reducer: Reducer<State, Action> = produce(
 
       case 'Card.Drop': {
         const fromID = draft.draggingCardID
-        if(!fromID) return
+        if (!fromID) return
 
         draft.draggingCardID = undefined
 
         const { toID } = action.payload
-        if(fromID === toID) return
+        if (fromID === toID) return
 
         const patch = reorderPatch(draft.cardsOrder, fromID, toID)
         draft.cardsOrder = {
@@ -163,6 +177,41 @@ export const reducer: Reducer<State, Action> = produce(
         draft.columns?.forEach(column => {
           column.cards = sortBy(unorderedCards, draft.cardsOrder, column.id)
         })
+        return
+      }
+
+      case 'InputForm.SetText': {
+        const { columnID, value } = action.payload
+
+        const column = draft.columns?.find(c => c.id === columnID)
+        if (!column) return
+
+        column.text = value
+        return
+      }
+
+      case 'InputForm.ConfirmInput': {
+        const { columnID, cardID } = action.payload
+ 
+        const column = draft.columns?.find(c => c.id === columnID)
+        if (!column?.cards) return
+
+        column.cards.unshift({
+          id: cardID,
+          text: column.text,
+        })
+        column.text = ''
+
+        const patch = reorderPatch(
+          draft.cardsOrder,
+          cardID,
+          draft.cardsOrder[columnID],
+        )
+        draft.cardsOrder = {
+          ...draft.cardsOrder,
+          ...patch,
+        }
+
         return
       }
 
