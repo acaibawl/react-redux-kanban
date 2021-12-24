@@ -71,6 +71,9 @@ export type Action =
       }
     }
   | {
+      type: 'Card,EndDragging'
+    }
+  | {
       type: 'Card.Drop'
       payload: {
         toID: CardID | ColumnID
@@ -158,6 +161,11 @@ export const reducer: Reducer<State, Action> = produce(
         return
       }
 
+      case 'Card,EndDragging': {
+        draft.draggingCardID = undefined
+        return
+      }
+
       case 'Card.Drop': {
         const fromID = draft.draggingCardID
         if (!fromID) return
@@ -192,7 +200,7 @@ export const reducer: Reducer<State, Action> = produce(
 
       case 'InputForm.ConfirmInput': {
         const { columnID, cardID } = action.payload
- 
+
         const column = draft.columns?.find(c => c.id === columnID)
         if (!column?.cards) return
 
