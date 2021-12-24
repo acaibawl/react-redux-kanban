@@ -15,6 +15,7 @@ export type State = {
     }[]
   }[]
   cardsOrder: Record<string, CardID | ColumnID | null>
+  draggingCardID?: CardID
   deletingCardID?: CardID
 }
 
@@ -51,7 +52,7 @@ export type Action =
         cardsOrder: Record<string, CardID | ColumnID | null>
       }
     }
-    | {
+  | {
       type: 'Card.SetDeletingCard'
       payload: {
         cardID: CardID
@@ -62,6 +63,18 @@ export type Action =
     }
   | {
       type: 'Dialog.CancelDelete'
+    }
+  | {
+      type: 'Card.StartDragging'
+      payload: {
+        cardID: CardID
+      }
+    }
+  | {
+      type: 'Card.Drop'
+      payload: {
+        toID: CardID | ColumnID
+      }
     }
 
 export const reducer: Reducer<State, Action> = produce(
@@ -105,7 +118,7 @@ export const reducer: Reducer<State, Action> = produce(
         draft.deletingCardID = undefined
 
         const column = draft.columns?.find(col =>
-          col.cards?.some(c => c.id === cardID)  
+          col.cards?.some(c => c.id === cardID),
         )
         if (!column?.cards) return
 
@@ -114,13 +127,42 @@ export const reducer: Reducer<State, Action> = produce(
         const patch = reorderPatch(draft.cardsOrder, cardID)
         draft.cardsOrder = {
           ...draft.cardsOrder,
-          ...patch
+          ...patch,
         }
         return
       }
 
       case 'Dialog.CancelDelete': {
         draft.deletingCardID = undefined
+        return
+      }
+
+      case 'Card.StartDragging': {
+        const { cardID } = action.payload
+
+        draft.draggingCardID = cardID
+        return
+      }
+
+      case 'Card.Drop': {
+        const fromID = draft.draggingCardID
+        if(!fromID) return
+
+        draft.draggingCardID = undefined
+
+        const { toID } = action.payload
+        if(fromID === toID) return
+
+        const patch = reorderPatch(draft.cardsOrder, fromID, toID)
+        draft.cardsOrder = {
+          ...draft.cardsOrder,
+          ...patch,
+        }
+
+        const unorderedCards = draft.columns?.flatMap(c => c.cards ?? []) ?? []
+        draft.columns?.forEach(column => {
+          column.cards = sortBy(unorderedCards, draft.cardsOrder, column.id)
+        })
         return
       }
 
