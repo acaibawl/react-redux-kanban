@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import { useSelector } from 'react-redux'
 import * as color from './color'
 import { Card } from './Card'
 import { PlusIcon } from './icon'
@@ -8,7 +9,6 @@ import { CardID } from './api'
 
 export const Column = ({
   title,
-  filterValue: rawFilterValue,
   cards: rawCards,
   onCardDragStart,
   onCardDrop,
@@ -19,7 +19,6 @@ export const Column = ({
   onTextCancel,
 }: {
   title?: string
-  filterValue?: string
   cards?: {
     id: CardID
     text?: string
@@ -32,8 +31,8 @@ export const Column = ({
   onTextConfirm?(): void
   onTextCancel?(): void
 }) => {
-  const filterValue = rawFilterValue?.trim()
-  const keywords = filterValue?.toLowerCase().split(/\s+/g) ?? []
+  const filterValue = useSelector(state => state.filterValue.trim())
+  const keywords = filterValue.toLowerCase().split(/\s+/g) ?? []
   const cards = rawCards?.filter(({ text }) => {
     return keywords?.every(w => text?.toLowerCase().includes(w))
   })
