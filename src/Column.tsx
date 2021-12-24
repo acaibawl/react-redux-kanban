@@ -58,9 +58,7 @@ export const Column = ({
 
       {inputMode && (
         <InputForm
-          value={text}
-          onChange={onTextChange}
-          onConfirm={confirmInput}
+          columnID={columnID}
           onCancel={cancelInput}
         />
       )}
