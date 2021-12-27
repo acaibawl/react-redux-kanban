@@ -1,19 +1,41 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useStore } from 'react-redux'
 import * as color from './color'
 import { SearchIcon as _SearchIcon } from './icon'
 
 export const CardFilter = () => {
+  const store = useStore()
   const dispatch = useDispatch()
-  const value = useSelector(state => state.filterValue)
-  const onChange = (value: string) =>
-    dispatch({
-      type: 'Filter.SetFilter',
-      payload: {
-        value,
-      },
-    })
+  const [value, setValue] = useState('')
+
+  useEffect(
+    () =>
+      store.subscribe(() => {
+        const { filterValue } = store.getState()
+        if(value === filterValue) return
+
+        setValue(filterValue)
+      }),
+      [store, value],
+  )
+
+  useEffect(() => {
+    const timer = setTimeout(
+      // 最後のvalue変更（入力）から400ミリ秒経過したら実施される処理
+      () =>
+      dispatch({
+        type: 'Filter.SetFilter',
+        payload: {
+          value,
+        },
+      }),
+      400
+    )
+    
+    // 前のタイマーを破棄
+    return () => clearTimeout(timer)
+  }, [dispatch, value])
 
   return (
     <Container>
@@ -21,7 +43,7 @@ export const CardFilter = () => {
       <Input
         placeholder="Filter cards"
         value={value}
-        onChange={ev => onChange(ev.currentTarget.value)}
+        onChange={ev => setValue(ev.currentTarget.value)}
       />
     </Container>
   )
